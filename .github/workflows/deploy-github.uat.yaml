@@ -38,13 +38,12 @@ jobs:
 
       - name: Deploy to Dev Org
         run: |
-          echo "${{ secrets.DEV_JWT_SERVER_KEY }}" > server.key
-          sf org login jwt --username ${{ secrets.DEV_USERNAME }} \
-            --jwt-key-file server.key --client-id ${{ secrets.DEV_CLIENT_ID }} \
-            --instance-url ${{ vars.DEV_INSTANCE_URL }} --set-default
-
-          sf project deploy start --source-dir changed-sources/force-app \
-            --test-level RunLocalTests
+           echo "${{ secrets.JWT_SERVER_KEY }}" > server.key
+           sf org login jwt --username ${{ secrets.DEPLOYMENT_USER_NAME }} --jwt-key-file server.key \
+            --client-id ${{ secrets.CONSUMER_KEY }} --instance-url ${{ vars.INSTANCE_URL }} \
+            --set-default
+            
+           sf project deploy start --source-dir changed-sources/force-app --test-level RunLocalTests 
 
   deploy-to-uat:
     needs: deploy-to-dev     # Only run UAT if Dev was successful
@@ -77,9 +76,9 @@ jobs:
 
       - name: Deploy to UAT Org
         run: |
-          echo "${{ secrets.UAT_JWT_SERVER_KEY }}" > server.key
-          sf org login jwt --username ${{ secrets.UAT_USERNAME }} \
-            --jwt-key-file server.key --client-id ${{ secrets.UAT_CLIENT_ID }} \
+          echo "${{ secrets.UAT_SERVER_KEY }}" > server.key
+          sf org login jwt --username ${{ secrets.UAT_DEPLOYMENT_USERNAME }} \
+            --jwt-key-file server.key --client-id ${{ secrets.UAT_CONSUMER_KEY }} \
             --instance-url ${{ vars.UAT_INSTANCE_URL }} --set-default
 
           sf project deploy start --source-dir changed-sources/force-app \
