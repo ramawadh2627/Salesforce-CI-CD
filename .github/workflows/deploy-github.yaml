@@ -2,7 +2,7 @@ name: Deploy to salesdforce CI CD enivorment on push to  master  # This workflow
 
 on:
  push:
-  branches: [ master ]  # Triggers when code is pushed to the 'master/main' branch
+  branches: [ dev ]  # Triggers when code is pushed to the 'master/main' branch
   paths:
     - 'force-app/**'  # only triggers if something changes inside the 'force-app' directory
 
