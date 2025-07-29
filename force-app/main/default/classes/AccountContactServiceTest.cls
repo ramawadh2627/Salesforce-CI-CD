@@ -4,7 +4,7 @@ private class AccountContactServiceTest {
     @isTest
     static void testGetContactsByAccountId() {
         
-        Account testAccount = new Account(Name = 'Test Account');
+        Account testAccount = new Account(Name = 'Test Account1');
         insert testAccount;
         
        
