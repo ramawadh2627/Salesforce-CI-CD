@@ -9,7 +9,7 @@ on:
 jobs:
 
   deploy-to-uat:
-                                  # needs: deploy-to-dev     # Only run UAT if Dev was successful
+    #needs: deploy-to-dev     # Only run UAT if Dev was successful
     runs-on: ubuntu-latest
     environment: uat
 
