@@ -5,15 +5,15 @@ public with sharing class AccountContactService {
         Map<Id, List<Contact>> accountContactMap = new Map<Id, List<Contact>>();
         
         // Query Contacts for the given AccountId
-        List<Contact> contList = [
+        List<Contact> conList = [
             SELECT Id, FirstName, LastName, Email, AccountId
             FROM Contact
             WHERE AccountId = :accountId
         ];
         
         // Add to the map
-        if (!contList.isEmpty()) {
-            accountContactMap.put(accountId, contList);
+        if (!conList.isEmpty()) {
+            accountContactMap.put(accountId, conList);
         }
         
         return accountContactMap;
