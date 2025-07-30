@@ -8,45 +8,8 @@ on:
 
 jobs:
 
-  deploy-to-dev:
-    runs-on: ubuntu-latest
-    environment: dev
-
-    steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-
-      - name: Install Salesforce CLI
-        run: npm install -g @salesforce/cli
-
-      - name: Install sfdx-git-delta
-        run: |
-          echo Y | sfdx plugins:install sfdx-git-delta
-          sfdx plugins
-
-      - name: Create delta for Dev
-        run: |
-          mkdir changed-sources
-          sf sgd source delta --to "HEAD" --from "HEAD~1" \
-            --output changed-sources/ --generate-delta --source force-app/
-
-      - name: Deploy to Dev Org
-        run: |
-           echo "${{ secrets.JWT_SERVER_KEY }}" > server.key
-           sf org login jwt --username ${{ secrets.DEPLOYMENT_USER_NAME }} --jwt-key-file server.key \
-            --client-id ${{ secrets.CONSUMER_KEY }} --instance-url ${{ vars.INSTANCE_URL }} \
-            --set-default
-            
-           sf project deploy start --source-dir changed-sources/force-app --test-level RunLocalTests 
-
   deploy-to-uat:
-    needs: deploy-to-dev     # Only run UAT if Dev was successful
+                                  # needs: deploy-to-dev     # Only run UAT if Dev was successful
     runs-on: ubuntu-latest
     environment: uat
 
