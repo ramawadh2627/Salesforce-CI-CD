@@ -1,48 +1,54 @@
-name: Deploy to Dev and UAT
+name: Deploy to salesdforce CI CD enivorment on push to  dev  # This workflow triggers when code is pushed to the master branch or merged into it.
 
 on:
-  push:
-    branches: [ uat ]
-    paths:
-      - 'force-app/**'
+ push:
+  branches: [ dev ]  # Triggers when code is pushed to the 'master/main' branch
+  paths:
+    - 'force-app/**'  # only triggers if something changes inside the 'force-app' directory
 
 jobs:
-
-  deploy-to-uat:
-    #needs: deploy-to-dev     # Only run UAT if Dev was successful
-    runs-on: ubuntu-latest
-    environment: uat
+  Deploy-to-dev:
+    runs-on: ubuntu-latest    # Runs on the latest Ubuntu environment
+    environment: sandbox    #Optional: specify the environment 
 
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3  # setup node.js
         with:
           node-version: '18'
 
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: 'Checkout source code'
+        uses: actions/checkout@v3  # copying / checking out source code 
         with:
-          fetch-depth: 2
+          fetch-depth: '2'   # Fetch the last 2 commits (required for delta comparison)
 
-      - name: Install Salesforce CLI
-        run: npm install -g @salesforce/cli
+      # Now Install Salesforce CLI
+      - name: 'Install sfdx'
+        run: npm install @salesforce/cli --global
 
-      - name: Install sfdx-git-delta
+      - name: 'Installing sfdx git delta'
         run: |
-          echo Y | sfdx plugins:install sfdx-git-delta
+          echo Y | sfdx plugins:install sfdx-git-delta  
           sfdx plugins
-
-      - name: Create delta for UAT
+                         
+      - name: 'Create delta packages'
         run: |
           mkdir changed-sources
-          sf sgd source delta --to "HEAD" --from "HEAD~1" \
-            --output changed-sources/ --generate-delta --source force-app/
+          sf sgd source delta --to "HEAD" --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
+          echo "[INFO] Diff generated"
 
-      - name: Deploy to UAT Org
-        run: |
-          echo "${{ secrets.UAT_SERVER_KEY }}" > server.key
-          sf org login jwt --username ${{ secrets.UAT_DEPLOYMENT_USERNAME }} \
-            --jwt-key-file server.key --client-id ${{ secrets.UAT_CONSUMER_KEY }} \
-            --instance-url ${{ vars.UAT_INSTANCE_URL }} --set-default
+      - name:  'Deploy to environment with running all local tests'  # Authenticate to Salesforce using JWT flow, 
+        run: |                                                       #  Deploy only the changed files and run all local tests
+          echo "${{ secrets.JWT_SERVER_KEY }}" > server.key
+          sf org login jwt --username ${{ secrets.DEPLOYMENT_USER_NAME }} --jwt-key-file server.key \
+            --client-id ${{ secrets.CONSUMER_KEY }} --instance-url ${{ vars.INSTANCE_URL }} \
+            --set-default
+            
+          sf project deploy start --source-dir changed-sources/force-app --test-level RunLocalTests   
 
-          sf project deploy start --source-dir changed-sources/force-app \
-            --test-level RunLocalTests
+
+
+
+
+
+
+   
