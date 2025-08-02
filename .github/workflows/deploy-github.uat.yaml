@@ -1,0 +1,54 @@
+name: Deploy to salesdforce CI CD enivorment on push to  uat  # This workflow triggers when code is pushed to the master branch or merged into it.
+
+on:
+ push:
+  branches: [ uat ]  # Triggers when code is pushed to the 'uat' branch
+  paths:
+    - 'force-app/**'  # only triggers if something changes inside the 'force-app' directory
+
+jobs:
+  Deploy-to-dev:
+    runs-on: ubuntu-latest    # Runs on the latest Ubuntu environment
+    environment: sandbox    #Optional: specify the environment 
+
+    steps:
+      - uses: actions/setup-node@v3  # setup node.js
+        with:
+          node-version: '18'
+
+      - name: 'Checkout source code'
+        uses: actions/checkout@v3  # copying / checking out source code 
+        with:
+          fetch-depth: '2'   # Fetch the last 2 commits (required for delta comparison)
+
+      # Now Install Salesforce CLI
+      - name: 'Install sfdx'
+        run: npm install @salesforce/cli --global
+
+      - name: 'Installing sfdx git delta'
+        run: |
+          echo Y | sfdx plugins:install sfdx-git-delta  
+          sfdx plugins
+                         
+      - name: 'Create delta packages'
+        run: |
+          mkdir changed-sources
+          sf sgd source delta --to "HEAD" --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
+          echo "[INFO] Diff generated"
+
+      - name:  'Deploy to environment with running all local tests'  # Authenticate to Salesforce using JWT flow, 
+        run: |                                                       #  Deploy only the changed files and run all local tests
+          echo "${{ secrets.UAT_SERVER_KEY }}" > server.key
+          sf org login jwt --username ${{ secrets.UAT_DEPLOYMENT_USERNAME }} --jwt-key-file server.key \
+            --client-id ${{ secrets.UAT_CONSUMER_KEY }} --instance-url ${{ vars.UAT_INSTANCE_URL }} \
+            --set-default
+            
+          sf project deploy start --source-dir changed-sources/force-app --test-level RunLocalTests   
+
+
+
+
+
+
+
+   
