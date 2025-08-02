@@ -1,4 +1,4 @@
-name: Deploy to salesdforce CI CD enivorment on push to  master  # This workflow triggers when code is pushed to the master branch or merged into it.
+name: Deploy to salesdforce CI CD enivorment on push to  dev  # This workflow triggers when code is pushed to the master branch or merged into it.
 
 on:
  push:
@@ -7,7 +7,7 @@ on:
     - 'force-app/**'  # only triggers if something changes inside the 'force-app' directory
 
 jobs:
-  Deploy-to-sandbox:
+  Deploy-to-dev:
     runs-on: ubuntu-latest    # Runs on the latest Ubuntu environment
     environment: sandbox    #Optional: specify the environment 
 
