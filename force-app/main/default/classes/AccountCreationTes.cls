@@ -1,7 +1,7 @@
 @isTest
  private class AccountCreationTest{
     @isTest
-    static voide testCreateAccount(){
+    static void testCreateAccount(){
         Id accId = AccountCreation.createAccount();
 
         Account acc = [Select Id , name from Account Where Id = :accId];
