@@ -3,6 +3,6 @@ public with sharing class AccountCreation {
         Account acc = new Account();
         acc.Name = 'Sample Account';
         insert acc;
-        return aac.id;
+        return acc.id;
     }
 }
